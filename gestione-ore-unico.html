@@ -1,0 +1,170 @@
+
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>Gestione Ore Lavorate</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      max-width: 700px;
+      margin: auto;
+      padding: 20px;
+      background-color: #ffffff;
+      color: #111827;
+    }
+
+    h2 {
+      font-size: 24px;
+      margin-bottom: 20px;
+      font-weight: 600;
+    }
+
+    .tv-form {
+      display: grid;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .tv-form input {
+      padding: 8px;
+      width: 100%;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+    }
+
+    #aggiungiBtn {
+      background-color: #111827;
+      color: white;
+      padding: 10px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .tv-residuo {
+      margin-top: 10px;
+      font-weight: 600;
+      font-size: 18px;
+    }
+
+    .tv-tabella {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      font-size: 16px;
+    }
+
+    .tv-tabella th, .tv-tabella td {
+      border: 1px solid #e5e7eb;
+      padding: 10px;
+      text-align: left;
+    }
+
+    .tv-tabella th {
+      background-color: #f3f4f6;
+    }
+
+    .tv-btn-delete {
+      background-color: #ef4444;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+<h2>Registrazione Ore Lavorate</h2>
+
+<div class="tv-form">
+  <label>Data
+    <input type="date" id="data" required>
+  </label>
+
+  <label>Task
+    <input type="text" id="task" placeholder="Es. Revisione layout" required>
+  </label>
+
+  <label>Ore lavorate
+    <input type="number" id="ore" min="0.25" step="0.25" required>
+  </label>
+
+  <button id="aggiungiBtn">Aggiungi</button>
+</div>
+
+<div id="residuo" class="tv-residuo"></div>
+
+<table id="tabella" class="tv-tabella">
+  <thead>
+    <tr>
+      <th>Data</th>
+      <th>Task</th>
+      <th>Ore</th>
+      <th>Azioni</th>
+    </tr>
+  </thead>
+  <tbody></tbody>
+</table>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const monteOreTotale = 40;
+    let oreTotaliLavorate = 0;
+
+    const residuoEl = document.getElementById("residuo");
+    const tabellaBody = document.querySelector("#tabella tbody");
+
+    function aggiornaResiduo() {
+      const residuo = monteOreTotale - oreTotaliLavorate;
+      if (residuoEl) {
+        residuoEl.innerText = `Ore residue: ${residuo.toFixed(2)} su ${monteOreTotale}`;
+      }
+    }
+
+    function aggiungiTask() {
+      const data = document.getElementById('data').value;
+      const task = document.getElementById('task').value.trim();
+      const ore = parseFloat(document.getElementById('ore').value);
+
+      if (!data || !task || isNaN(ore) || ore <= 0) {
+        alert('Inserisci tutti i dati correttamente.');
+        return;
+      }
+
+      const riga = tabellaBody.insertRow();
+      riga.insertCell(0).innerText = data;
+      riga.insertCell(1).innerText = task;
+      riga.insertCell(2).innerText = ore.toFixed(2);
+
+      const cellaAzioni = riga.insertCell(3);
+      const btn = document.createElement("button");
+      btn.innerText = "Elimina";
+      btn.className = "tv-btn-delete";
+      btn.onclick = () => {
+        oreTotaliLavorate -= ore;
+        riga.remove();
+        aggiornaResiduo();
+      };
+      cellaAzioni.appendChild(btn);
+
+      oreTotaliLavorate += ore;
+      aggiornaResiduo();
+
+      document.getElementById('data').value = '';
+      document.getElementById('task').value = '';
+      document.getElementById('ore').value = '';
+    }
+
+    const btnAggiungi = document.getElementById("aggiungiBtn");
+    if (btnAggiungi) {
+      btnAggiungi.addEventListener("click", aggiungiTask);
+      aggiornaResiduo();
+    }
+  });
+</script>
+
+</body>
+</html>
